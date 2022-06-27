@@ -1,6 +1,6 @@
 ---
 - name: install and config httpd
-  hosts: ansible4
+  hosts: ansible3
   become: yes
   ignore_errors: yes
   tasks:
@@ -51,3 +51,6 @@
         msg: 'No connection to server'
       when: "'Welcome' not in output.stdout"
     - name: success message
+      debug:
+        msg: '{{ output.stdout }}'
+      when: output.rc == 0
