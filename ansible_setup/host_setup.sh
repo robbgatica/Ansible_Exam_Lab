@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# non-interactive key creation
 ssh-keygen -q -t rsa -f /home/ansible/.ssh/id_rsa -N ''
 
 ansible all -m user -a "name=ansible state=present password={{ 'password' | password_hash('sha512', 'mysecretsalt') }}" --extra-vars "ansible_user=root ansible_password=password"
