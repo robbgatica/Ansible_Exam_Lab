@@ -1,0 +1,31 @@
+---
+- name: configure ftp
+  hosts: dev
+  become: yes
+  tasks:
+    - name: install vsftpd
+      yum:
+        name: vsftpd
+        state: latest
+    - name: enable anonymous access to ftp
+      lineinfile:
+        path: /etc/vsftpd/vsftpd.conf
+        regexp: 'anonymous_enable=NO'
+        line: 'anonymous_enable=YES'
+    - name: create welcome message in ftp root
+      lineinfile:
+        path: /var/ftp/pub/welcome.txt
+        line: 'Welcome to the {{ ansible_facts.hostname }} FTP server!'
+        create: yes
+        mode: '0744'
+    - name: configure firewall
+      firewalld:
+        service: ftp
+        state: enabled
+        immediate: yes
+        permanent: yes
+    - name: start and enable vsftpd
+      systemd:
+        name: vsftpd
+        state: started
+        enabled: yes

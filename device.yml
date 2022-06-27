@@ -1,0 +1,14 @@
+---
+- name: device report
+  hosts: all
+  become: yes
+  tasks:
+    - name: set vars
+      set_fact:
+        primary: "{{ 'nvme0n1' if ansible_facts.devices.nvme0n1 is defined else 'sda' if ansible_facts.devices.sda is defined else False }}"
+        secondary: "{{ 'nvme0n2' if ansible_facts.devices.nvme0n2 is defined else 'sdb' if ansible_facts.devices.sdb is defined else False }}"
+
+    - name: copy report template
+      template:
+        src: /home/ansible/templates/devices.j2
+        dest: /tmp/devices.txt

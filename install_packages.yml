@@ -1,0 +1,21 @@
+---
+- name: install packages based on local facts
+  hosts: ansible2
+  become: yes
+  tasks:
+    - name: install the packages
+      yum:
+        name:
+          - "{{ ansible_facts['ansible_local']['packages']['packages']['package1'] }}"
+          - "{{ ansible_facts['ansible_local']['packages']['packages']['package2'] }}"
+        state: latest
+    - name: start package1
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: start package2
+      systemd:
+        name: mariadb
+        state: started
+        enabled: yes

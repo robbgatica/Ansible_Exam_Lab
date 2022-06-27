@@ -1,0 +1,14 @@
+---
+- name: copy facts file to ansible2
+  hosts: ansible2
+  become: yes
+  tasks:
+    - name: create facts dir
+      file:
+        path: /etc/ansible/facts.d
+        recurse: yes
+        state: directory
+    - name: copy facts file
+      copy:
+        src: /home/ansible/packages.fact
+        dest: /etc/ansible/facts.d

@@ -1,0 +1,42 @@
+---
+- name: configure localhost as chrony server
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: configure chrony.conf
+      blockinfile:
+        path: /etc/chrony.conf
+        block: |
+          allow 192.168 .0.0/16
+          local stratum 10
+    - name: configure fireall
+      firewalld:
+        service: ntp
+        state: enabled
+        immediate: yes
+        permanent: yes
+    - name: start chrony service
+      systemd:
+        name: chronyd
+        state: started
+
+- name: timesync role
+  hosts: all
+  become: yes
+  vars:
+    timesync_ntp_servers:
+      - hostname: control
+        pool: yes
+        iburst: yes
+  roles:
+    - rhel-system-roles.timesync
+
+- name: confirm that control node is time server
+  hosts: all
+  become: yes
+  tasks:
+    - shell: chronyc sources
+      register: output
+    - debug:
+        msg: "Time could not be syncronized on {{ ansible_facts['hostname'] }}"
+      when: "'^* 192.168.109.144' not in output.stdout_lines[2]"

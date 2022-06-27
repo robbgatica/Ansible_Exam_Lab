@@ -1,0 +1,53 @@
+---
+- name: install and config httpd
+  hosts: ansible4
+  become: yes
+  ignore_errors: yes
+  tasks:
+    - name: configure firewall
+      firewalld:
+        port: 88/tcp
+        state: enabled
+        permanent: yes
+        immediate: yes
+    - name: allow httpd to listen on port
+      seport:
+        ports: 88
+        proto: tcp
+        setype: http_port_t
+        state: present
+    - name: install httpd
+      yum:
+        name: httpd
+        state: present
+    - name: configure httpd to listen on port 88
+      lineinfile:
+        path: /etc/httpd/conf/httpd.conf
+        regexp: '^Listen 80'
+        line: 'Listen 88'
+    - name: start httpd
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+    - name: create index file
+      lineinfile:
+        path: /var/www/html/index.html
+        line: 'Welcome to the {{ ansible_facts.hostname }} server!'
+        create: yes
+        owner: apache
+        group: apache
+
+- name: test connectivity to webserver
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: capture curl output
+      shell: 'curl ansible3:88'
+      register: output
+      ignore_errors: yes
+    - name: fail messages
+      debug:
+        msg: 'No connection to server'
+      when: "'Welcome' not in output.stdout"
+    - name: success message

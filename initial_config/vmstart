@@ -1,0 +1,12 @@
+#!/bin/zsh
+
+for i in $(ls ~/Virtual\ Machines.localized/rhce* | grep .vmx$ | cut -d '.' -f 1)
+do 
+    vmrun revertToSnapshot ~/Virtual\ Machines.localized/$i.vmwarevm/$i.vmx Snapshot
+    vmrun start ~/Virtual\ Machines.localized/$i.vmwarevm/$i.vmx nogui
+done
+
+sleep 5 
+
+ssh ansible@control
+

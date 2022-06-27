@@ -1,0 +1,2 @@
+Primary device {{ primary }} found on {{ ansible_facts['hostname'] }}
+{% if secondary %}Secondary device {{ secondary }} found on {{ ansible_facts['hostname'] }} {% endif %}

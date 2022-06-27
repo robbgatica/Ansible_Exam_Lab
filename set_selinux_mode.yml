@@ -1,0 +1,25 @@
+---
+- name: set selinux mode and verify new config
+  hosts: ansible3
+  become: yes
+  tasks:
+    - name: set selinux mode to permissive
+      selinux:
+        policy: targeted
+        state: permissive
+      register: mode
+
+    - name: reboot if selinux mode changed
+      pause:
+        seconds: 30
+      notify: start reboot
+      when: mode.changed
+
+    - name: no change message
+      debug:
+        msg: 'No changes were made'
+      when: not mode.changed
+
+  handlers:
+    - name: start reboot
+      reboot:

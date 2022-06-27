@@ -1,0 +1,54 @@
+---
+- name: set up LVM on hosts with secondary storage
+  hosts: all
+  become: yes
+  vars:
+    vg: web_group
+    lv: web_files
+  tasks:
+    - name: check for sdb
+      set_fact:
+        disk2: /dev/sdb
+      ignore_errors: yes
+      when: ansible_facts.devices.sdb
+
+    - name: check for xvdb
+      set_fact:
+        disk2: /dev/xvdb
+      ignore_errors: yes
+      when: ansible_facts.devices.xvdb
+
+    - name: check for nvme0n2
+      set_fact:
+        disk2: /dev/nvme0n2
+      ignore_errors: yes
+      when: ansible_facts.devices.nvme0n2
+
+    - name: task block
+      block:
+        - name: lvg setup
+          lvg:
+            pvs: '{{ disk2 }}'
+            vg: '{{ vg }}'
+        - name: lvol setup
+          lvol:
+            vg: '{{ vg }}'
+            lv: '{{ lv }}'
+            size: 2G
+            pvs: '{{ disk2 }}'
+        - name: create filesystem
+          filesystem:
+            fstype: xfs
+            dev: '/dev/{{ vg }}/{{ lv }}'
+        - name: mount lvm
+          mount:
+            path: /mnt/web
+            src: '/dev/{{ vg }}/{{ lv }}'
+            fstype: xfs
+            state: mounted
+      when: disk2 is defined
+
+    - name: no disk found message
+      debug:
+        msg: 'No second disk found on {{ ansible_facts.hostname }}'
+      when: disk2 is not defined

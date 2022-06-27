@@ -1,0 +1,27 @@
+---
+- name: configure repos on managed nodes
+  hosts: all
+  become: yes
+  vars:
+    repos:
+      - BaseOS
+      - AppStream
+  tasks:
+    - name: mount iso
+      mount:
+        src: /dev/sr0
+        path: /mnt/repo
+        fstype: iso9660
+        opts: ro,loop
+        state: mounted
+    - name: disable current repos
+      shell: mv /etc/yum.repos.d/*.repo /tmp
+    - name: create new local repos
+      yum_repository:
+        name: '{{ item }}'
+        description: 'Your friendly local {{ item }} repo'
+        file: '{{ item }}'
+        baseurl: 'file:///mnt/repo/{{ item }}'
+        gpgcheck: no
+        enabled: yes
+      loop: '{{ repos }}'

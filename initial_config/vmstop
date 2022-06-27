@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+# stop each vm instance and revert the image to its snapshot
+for i in $(ls ~/Virtual\ Machines.localized/rhce* | grep .vmx$ | cut -d '.' -f 1)
+do 
+    vmrun stop ~/Virtual\ Machines.localized/$i.vmwarevm/$i.vmx soft
+done
+
+

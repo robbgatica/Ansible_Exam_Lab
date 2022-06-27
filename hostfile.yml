@@ -1,0 +1,9 @@
+---
+- name: Create hosts file dynamically from inventory
+  hosts: all
+  become: yes
+  tasks:
+    - name: copy template
+      template:
+        src: /home/ansible/templates/hosts.j2
+        dest: /tmp/hosts
