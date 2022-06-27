@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 # stop each vm instance and revert the image to its snapshot
 for i in $(ls ~/Virtual\ Machines.localized/rhce* | grep .vmx$ | cut -d '.' -f 1)

@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/bash
 
 for i in $(ls ~/Virtual\ Machines.localized/rhce* | grep .vmx$ | cut -d '.' -f 1)
 do 
@@ -8,5 +8,6 @@ done
 
 sleep 5 
 
+# lets assume you have the control node in your hosts file
 ssh ansible@control
 
